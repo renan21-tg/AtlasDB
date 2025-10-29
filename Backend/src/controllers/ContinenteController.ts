@@ -10,12 +10,11 @@ async function addContinente(req: Request, res: Response) {
                 con_nome: nome,
                 con_descricao: desc
             }
-        })
-            
+        }) 
         return res.status(201).json(novoContinente)
     }
     catch (error) {
-        return res.status(500).json({message: "Erro ao cadastrar cliente", error})
+        return res.status(500).json({message: "Erro ao cadastrar continente", error})
     }
 }
 
