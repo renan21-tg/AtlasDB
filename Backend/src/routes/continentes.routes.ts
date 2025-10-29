@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as ContinenteController from '../controllers/continenteController.js'
+import * as ContinenteController from '../controllers/continente.controller.js'
 
 const router = Router()
 
