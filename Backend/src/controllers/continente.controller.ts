@@ -10,8 +10,8 @@ async function addContinente(req: Request, res:Response) {
         return res.status(201).json(novoContinente)
     }
     catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
-        return res.status(500).json({ message: "Erro interno do servidor", error: errorMessage });
+        const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
+        return res.status(500).json({ message: "Erro interno do servidor", error: errorMessage })
     }
 }
 
@@ -22,8 +22,8 @@ async function getAllContinentes(_req: Request, res: Response) {
         return res.status(200).json(continentes)
     }
     catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
-        return res.status(500).json({ message: "Erro interno do servidor", error: errorMessage });
+        const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
+        return res.status(500).json({ message: "Erro interno do servidor", error: errorMessage })
     }
 }
 
