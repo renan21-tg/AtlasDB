@@ -6,6 +6,14 @@ type ContinenteCreateData = {
 }
 
 async function create (data: ContinenteCreateData) {
+    const continenteExistente = await prisma.continentes.findFirst  ({
+        where: {con_nome: data.nome}
+    })
+
+    if (continenteExistente) {
+        throw new Error("Continente já existe.")
+    } 
+
     const novoContinente = await prisma.continentes.create({
         data: {
             con_nome: data.nome,
@@ -32,16 +40,25 @@ async function findUnique(id: number) {
 }
 
 async function update(id: number, data: ContinenteCreateData) {
-    const continenteAtualizado = await prisma.update({
+    const continenteAtualizado = await prisma.continentes.update({
         where: {
             con_id: id
         },
         data: {
             con_nome: data.nome,
-            con_desc: data.desc
+            con_descricao: data.desc
         }
     })
     return continenteAtualizado
 }
 
-export { create, findAll, findUnique, update }
+async function deleteCont(id: number) {
+    const continenteDeletado = await prisma.continentes.delete({
+        where: {
+            con_id: id
+        }
+    })
+    return continenteDeletado
+}
+
+export { create, findAll, findUnique, update, deleteCont }

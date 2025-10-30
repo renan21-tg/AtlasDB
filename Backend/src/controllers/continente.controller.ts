@@ -44,8 +44,6 @@ async function getContinenteById(req: Request, res: Response) {
     }
 }
 
-// TESTAR ROTA
-
 async function updateContinente(req:Request, res: Response) {
     try {
         const { id } = req.params
@@ -61,4 +59,18 @@ async function updateContinente(req:Request, res: Response) {
 
     }
 }
-export { addContinente, getAllContinentes, getContinenteById, updateContinente }
+
+async function deleteContinente(req: Request, res: Response) {
+    try {
+        const { id } = req.params
+
+        const continenteDeletado = await ContinenteService.deleteCont(Number(id))
+
+        return res.status(200).json(continenteDeletado)
+    }
+    catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
+        return res.status(500).json({ messag: "Errro interno do servidor", error: errorMessage})
+    }
+}
+export { addContinente, getAllContinentes, getContinenteById, updateContinente, deleteContinente }
