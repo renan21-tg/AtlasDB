@@ -33,7 +33,7 @@ async function getContinenteById(req: Request, res: Response) {
         const continente = await ContinenteService.findUnique(Number(id))
 
         if (continente === null) {
-            return res.status(404).json({message: "Continente inexistente"})
+            return res.status(404).json({message: "Continente não encontrado"})
         } else {
             return res.status(200).json(continente)
         }

@@ -6,6 +6,15 @@ type paisCreateData = {
     continenteId: number 
 }
 
+type paisUpdateData = {
+    nome: string,
+    descricao: string,
+    idioma_oficial: string,
+    moeda: string,
+    populacao: number,
+    continenteID: number
+}
+
 async function create (data: paisCreateData) {
     const validaContinente = await ContinenteService.findUnique(data.continenteId)
 
@@ -60,4 +69,52 @@ async function findAll() {
     return paises
 }
 
-export { create, findAll }
+async function findUnique(id: number) {
+    const pais = await prisma.paises.findUnique({
+        where: {
+            pai_id: id
+        }
+    })
+    
+    return pais
+}
+
+async function listByContinente(id: number) {
+    const paisesContinente = await prisma.paises.findMany({
+        where: {
+            continenteId: id
+        }
+    })
+
+    return paisesContinente
+}
+
+async function update (id: number, data: paisUpdateData) {
+    const paisAtualizado = await prisma.paises.update({
+        where: {
+            pai_id: id
+        },
+        data: {
+            pai_nome: data.nome,
+            pai_descricao: data.descricao,
+            pai_idioma_oficial: data.idioma_oficial,
+            pai_moeda: data.moeda,
+            pai_populacao: data.populacao,
+            continenteId: data.continenteID
+        }
+    })
+
+    return paisAtualizado
+}
+
+async function deletePais(id: number) {
+    const paisDeleteado = await prisma.paises.delete({
+        where: {
+            pai_id: id
+        }
+    })
+
+    return paisDeleteado
+}
+
+export { create, findAll, findUnique, listByContinente, update, deletePais }
