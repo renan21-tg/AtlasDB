@@ -8,6 +8,14 @@ type cidadeCreateData = {
     paisId: number,
 }
 
+type cidadeUpdateData = {
+    nome: string,
+    populacao: number,
+    lat: number,
+    lon: number,
+    paisId: number
+}
+
 
 async function create(data: cidadeCreateData) {
     const validaPais = await paisService.findUnique(data.paisId)
@@ -53,4 +61,60 @@ async function create(data: cidadeCreateData) {
     return novaCidade;
 }
 
-export { create }
+async function findAll() {
+    const cidades = await prisma.cidades.findMany()
+
+    return cidades
+}
+
+async function findUnique(id: number) {
+    const cidade = await prisma.cidades.findUnique({
+        where: {
+            cid_id: id
+        }
+    })
+
+    // Puxar informacoes de tempo
+
+    return cidade
+}
+
+async function listByPais(id: number) {
+    const cidadesPais = await prisma.cidades.findMany({
+        where: {
+            paisId: id
+        }
+    })
+
+    return cidadesPais
+}
+
+async function update(id: number, data: cidadeUpdateData) {
+    const cidadeAtualizada = await prisma.cidades.update({
+        where: {
+            cid_id: id
+        },
+        data: {
+            cid_nome: data.nome,
+            cid_populacao: data.populacao,
+            cid_latitude: data.lat,
+            cid_longitude: data.lon,
+            paisId: data.paisId
+            
+        }
+    })
+
+    return cidadeAtualizada
+}
+
+async function deleteCidade(id: number) {
+    const cidadeDeletada = await prisma.cidades.delete({
+        where: {
+            cid_id: id
+        }
+    })
+
+    return cidadeDeletada   
+}
+
+export { create, findAll, findUnique, listByPais, update, deleteCidade }
