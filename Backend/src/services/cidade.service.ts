@@ -1,5 +1,6 @@
 import { prisma } from "../prismaClient.js";
 import * as paisService from "../services/pais.service.js"
+import 'dotenv/config'
 
 type cidadeCreateData = {
     nome: string,
@@ -16,7 +17,7 @@ async function create(data: cidadeCreateData) {
     }
 
     const nomeCidade = encodeURI(data.nome)
-    const urlApi = `http://api.openweathermap.org/geo/1.0/direct?q=${nomeCidade}&limit=5&appid={API_KEY}`
+    const urlApi = `http://api.openweathermap.org/geo/1.0/direct?q=${nomeCidade}&limit=5&appid=${process.env.API_KEY}`
     let dadosApi
 
     try{
