@@ -12,6 +12,8 @@ type paisUpdateData = {
     idioma_oficial: string,
     moeda: string,
     populacao: number,
+    area: number,
+    bandeira: string,
     continenteID: number
 }
 
@@ -48,6 +50,8 @@ async function create (data: paisCreateData) {
     const idiomaOficial = Object.values(dadosApi.languages)[0] as string
     const moeda = Object.keys(dadosApi.currencies)[0]
     const populacao = dadosApi.population
+    const area = dadosApi.area
+    const bandeira = dadosApi.flags.png
 
     const novoPais = await prisma.paises.create({
         data: {
@@ -56,6 +60,8 @@ async function create (data: paisCreateData) {
             pai_idioma_oficial: idiomaOficial,
             pai_moeda: moeda,
             pai_populacao: populacao,
+            pai_area: area,
+            pai_bandeira_png: bandeira,
             continenteId: data.continenteId
         }
     })

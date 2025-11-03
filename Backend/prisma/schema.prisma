@@ -21,7 +21,9 @@ model Paises {
   pai_descricao      String
   pai_idioma_oficial String   @db.VarChar(24)
   pai_moeda          String   @db.VarChar(16)
-  pai_populacao      Int
+  pai_populacao      Int?
+  pai_area           Int?
+  pai_bandeira_png   String?
   continenteId       Int
   continente         Continentes @relation(fields: [continenteId], references: [con_id])
   cidades            Cidades[]

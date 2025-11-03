@@ -61,9 +61,9 @@ async function getPaisesByContinente(req: Request, res: Response) {
 async function updatePais(req: Request, res: Response) {
     try {
         const { id } = req.params
-        const { nome, descricao, idioma_oficial, moeda, populacao, continenteID } = req.body
+        const { nome, descricao, idioma_oficial, moeda, populacao, area, bandeira, continenteID } = req.body
 
-        const paisAtualizado = await paisService.update(Number(id), { nome, descricao, idioma_oficial, moeda, populacao, continenteID })
+        const paisAtualizado = await paisService.update(Number(id), { nome, descricao, idioma_oficial, moeda, populacao, area, bandeira, continenteID })
 
         return res.status(200).json(paisAtualizado)
     }
