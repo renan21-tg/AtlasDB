@@ -1,8 +1,35 @@
-import { useState } from "react"
+import React, { useState } from "react"
 import Modal from "../components/Modal"
+import { api } from "../services/api"
+import axios from "axios"
 
 function Continentes() {
     const [open, setOpen] = useState<boolean>(false)
+    const [nome, setNome] = useState('')
+    const [desc, setDesc] = useState('')
+    const [message, setMessage] = useState('')
+
+    const handleSubmit = async(event: React.FormEvent) => {
+        event.preventDefault()
+        setMessage("")
+        const continenteData = { nome, desc }
+
+        try {
+            const response = await api.post('/continente', continenteData)
+
+            setMessage(`Continente ${response.data.nome} cadastrado com sucesso!`)
+            setNome("")
+            setDesc("")
+            setOpen(false)
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response) {
+                setMessage(`Erro: ${error.response.data.message || "Tente Novamente"}`)
+            } else {
+                setMessage("Nao foi possivel conectar ao servidor")
+            }
+            console.error("Erro no cadastro:", error)
+        }
+    }
 
     return (
         <>
@@ -17,20 +44,37 @@ function Continentes() {
                             <h1 className="text-lg font-semibold">Cadastrar Novo Continente</h1>
                         </div>
                         <div>
-                            <form action="">
+                            <form onSubmit={handleSubmit}>
                                 <div className="flex flex-col">
                                     <label className="mb-1" htmlFor="nome">Nome</label>
-                                    <input className="border border-gray-400 h-10 pl-2 mb-4 rounded-lg focus:outline-hidden focus:border-emerald-600" type="text" id="nome" placeholder="Ex: América   "/>
+                                    <input 
+                                        className="border border-gray-400 h-10 pl-2 mb-4 rounded-lg focus:outline-hidden focus:border-emerald-600" 
+                                        value={nome} 
+                                        type="text" 
+                                        id="nome" 
+                                        placeholder="Ex: América"
+                                        onChange={(e) => setNome(e.target.value)}
+                                        required
+                                    />
                                 </div>
                                 <div className="flex flex-col">
                                     <label className="mb-1" htmlFor="desc">Descricao</label>
-                                    <textarea className="border border-gray-400 h-20 pl-2 pt-2 rounded-lg  focus:outline-hidden focus:border-emerald-600" name="desc" id="desc" placeholder="Uma breve descricao do continente"></textarea>
+                                    <textarea 
+                                        className="border border-gray-400 h-20 pl-2 pt-2 rounded-lg  focus:outline-hidden focus:border-emerald-600" 
+                                        value={desc} 
+                                        name="desc" 
+                                        id="desc" 
+                                        placeholder="Uma breve descricao do continente"
+                                        onChange={(e) => setDesc(e.target.value)}
+                                        required
+                                    ></textarea>
                                 </div>
                                 <div className="flex justify-center items-center mt-8">
                                     <button className="bg-emerald-600 rounded-lg px-4 py-2 text-stone-50 flex items-center transition font-semibold duration-300 ease-in-out hover:cursor-pointer hover:bg-emerald-500 hover:-translate-y-0.5 active:translate-y-0" type="submit">
                                         Cadastrar
                                     </button>
                                 </div>
+                                {message && <p className="text-center mt-4">{message}</p>}
                             </form>
                         </div>
                     </div>
