@@ -2,12 +2,14 @@ import React, { useState } from "react"
 import Modal from "../components/Modal"
 import { api } from "../services/api"
 import axios from "axios"
+import ContinenteTable from "../components/ContinenteTable"
 
 function Continentes() {
     const [open, setOpen] = useState<boolean>(false)
     const [nome, setNome] = useState('')
     const [desc, setDesc] = useState('')
     const [message, setMessage] = useState('')
+    const [refreshTable, setRefreshTable] = useState(false)
 
     const handleSubmit = async(event: React.FormEvent) => {
         event.preventDefault()
@@ -21,6 +23,7 @@ function Continentes() {
             setNome("")
             setDesc("")
             setOpen(false)
+            setRefreshTable((prev) => !prev)
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
                 setMessage(`Erro: ${error.response.data.message || "Tente Novamente"}`)
@@ -33,10 +36,16 @@ function Continentes() {
 
     return (
         <>
-            <div className="w-full flex justify-center mt-6">
-                <div className="w-8/10 flex justify-between">
+            <div className="w-full flex items-center flex-col mt-6">
+                <div className="w-9/10 flex justify-between mb-4">
                     <div className="text-2xl font-semibold">Continentes Cadastrados</div>
                     <button onClick={() => setOpen(true)} className="bg-emerald-600 rounded-lg px-4 py-2 text-stone-50 flex items-center transition duration-300 ease-in-out hover:cursor-pointer hover:bg-emerald-500">Novo continente + </button>
+                </div>
+                <div className="w-8/10 mb-5">
+                    <input className="w-full px-5 py-2 rounded-full border border-gray-400" type="text" placeholder="Busque por um continente especifico"/>
+                </div>
+                <div className="w-9/10">
+                    <ContinenteTable refresh={refreshTable}/>
                 </div>
                 <Modal open={open} onClose={() => setOpen(false)}>
                     <div className="w-140">
@@ -74,7 +83,7 @@ function Continentes() {
                                         Cadastrar
                                     </button>
                                 </div>
-                                {message && <p className="text-center mt-4">{message}</p>}
+                                {message && <p className="text-center mt-4 hidden">{message}</p>}
                             </form>
                         </div>
                     </div>
