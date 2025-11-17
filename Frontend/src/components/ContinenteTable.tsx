@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, type FormEvent } from "react"
 import { api } from "../services/api"
 import { MapIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/16/solid"
+import Modal from "./Modal"
 
 interface Continente  {
     con_id: number
@@ -16,6 +17,10 @@ function ContinenteTable ( { refresh }:ContinenteTableProps) {
     const [continentes, setContinentes] = useState<Continente[]>([])
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
+    const [open, setOpen] = useState<boolean>(false)
+    const [id, setId] = useState<number | null>(null)
+    const [nome, setNome] = useState<string>("")
+    const [desc, setDesc] = useState<string>("")
 
 
     const fetchContinentes = async () => {
@@ -37,6 +42,42 @@ function ContinenteTable ( { refresh }:ContinenteTableProps) {
         try {
             await api.delete(`/continente/${id}`)
             setContinentes(continentes.filter(item => item.con_id !== id))
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const handleEdit = async (continente: Continente) => {
+        try {
+            setId(continente.con_id)
+            setNome(continente.con_nome)
+            setDesc(continente.con_descricao)
+            setOpen(true)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const handleClose = () => {
+        setOpen(false)
+        setNome("")
+        setId(null)
+        setDesc("")
+    }
+
+    const handleUpdate = async (e: FormEvent) => {
+        e.preventDefault()
+
+        if (!id) return
+
+        try {
+            await api.put(`/continente/${id}`, {
+                nome: nome,
+                desc: desc
+            })
+
+            handleClose()
+            fetchContinentes()
         } catch (error) {
             console.error(error)
         }
@@ -67,16 +108,15 @@ function ContinenteTable ( { refresh }:ContinenteTableProps) {
                             <td className="py-8 px-2">{continente.con_descricao}</td>
                             <td className="py-8 px-2">
                                 <div className="w-full flex items-center">
-                                    <button className="rounded-full p-1 mr-2">
+                                    <button className="rounded-full p-1 mr-2 cursor-pointer transition duration-200 hover:bg-sky-200">
                                         <MapIcon className="w-5 h-5 fill-sky-600" />
                                     </button>
                                     <button onClick={() => handleRemove(continente.con_id)} className="rounded-full p-1 mr-2 cursor-pointer transition duration-200 hover:bg-red-200">
                                         <TrashIcon className="w-5 h-5 fill-red-600" />
                                     </button>
-                                    <button className="rounded-full p-1">
+                                    <button onClick={() => handleEdit(continente)} className="rounded-full p-1 cursor-pointer transition duration-200 hover:bg-sky-200">
                                         <PencilSquareIcon className="w-5 h-5 fill-sky-600" />
                                     </button>
-                                    
                                 </div>
                             </td>
                         </tr>
@@ -84,6 +124,46 @@ function ContinenteTable ( { refresh }:ContinenteTableProps) {
                 </tbody>
             </table>
         </div>
+        < Modal open={open} onClose={handleClose}>
+            <div className="w-140">
+                <div className=" py-4 border-b border-b-gray-300 mb-6">
+                    <h1 className="text-lg font-semibold">Atualizar dados do Continente</h1>
+                </div>
+                <div>
+                    <form onSubmit={handleUpdate}>
+                        <div className="flex flex-col">
+                            <label className="mb-1" htmlFor="nome">Nome</label>
+                            <input 
+                                className="border border-gray-400 h-10 pl-2 mb-4 rounded-lg focus:outline-hidden focus:border-emerald-600" 
+                                type="text" 
+                                id="nome" 
+                                placeholder="Ex: América"
+                                required
+                                value={nome}
+                                onChange={(e) => setNome(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label className="mb-1" htmlFor="desc">Descricao</label>
+                            <textarea
+                                className="border border-gray-400 h-20 pl-2 pt-2 rounded-lg  focus:outline-hidden focus:border-emerald-600" 
+                                name="desc" 
+                                id="desc" 
+                                placeholder="Uma breve descricao do continente"
+                                required
+                                value={desc}
+                                onChange={(e) => setDesc(e.target.value)}
+                            ></textarea>
+                        </div>
+                        <div className="flex justify-center items-center mt-8">
+                            <button className="bg-emerald-600 rounded-lg px-4 py-2 text-stone-50 flex items-center transition font-semibold duration-300 ease-in-out hover:cursor-pointer hover:bg-emerald-500 hover:-translate-y-0.5 active:translate-y-0" type="submit">
+                                Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </Modal>
         </>
     )
 }
