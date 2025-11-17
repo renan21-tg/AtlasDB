@@ -25,7 +25,7 @@ model Paises {
   pai_area           Int?
   pai_bandeira_png   String?
   continenteId       Int
-  continente         Continentes @relation(fields: [continenteId], references: [con_id])
+  continente         Continentes @relation(fields: [continenteId], references: [con_id], onDelete: Cascade)
   cidades            Cidades[]
 }
 
@@ -36,5 +36,5 @@ model Cidades {
   cid_latitude  Decimal   @db.Decimal(9,6)
   cid_longitude Decimal   @db.Decimal(9,6)
   paisId        Int
-  pais          Paises @relation(fields: [paisId], references: [pai_id])
+  pais          Paises @relation(fields: [paisId], references: [pai_id], onDelete: Cascade)
 }
