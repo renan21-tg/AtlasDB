@@ -3,6 +3,7 @@ import Home from "./pages/Home"
 import Continentes from "./pages/Continentes"
 import Footer from "./components/Footer"
 import Header from "./components/Header"
+import Paises from "./pages/Paises"
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Routes>
           <Route path="/" element = {<Home />} />
           <Route path="/continentes" element = {<Continentes />} />
+          <Route path="/paises" element = {<Paises />} />
         </Routes>
       </div>
 

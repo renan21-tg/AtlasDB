@@ -102,7 +102,12 @@ function ContinenteTable ( { refresh }:ContinenteTableProps) {
                     </tr>
                 </thead>
                 <tbody className="text-justify">
-                    {continentes.map((continente) => (
+                    {continentes.length === 0 ? (
+                        <tr>
+                            <td colSpan={3} className="py-8 text-center text-gray-500">Não há Continentes cadastrados</td>
+                        </tr>
+                    ) : (
+                    continentes.map((continente) => (
                         <tr key={continente.con_id} className="hover:bg-gray-100 border-b border-gray-300">
                             <td className="py-8 px-8">{continente.con_nome}</td>
                             <td className="py-8 px-2">{continente.con_descricao}</td>
@@ -120,7 +125,8 @@ function ContinenteTable ( { refresh }:ContinenteTableProps) {
                                 </div>
                             </td>
                         </tr>
-                    ))}
+                    ))
+                )}
                 </tbody>
             </table>
         </div>
