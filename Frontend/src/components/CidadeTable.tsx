@@ -22,9 +22,12 @@ interface WeatherData {
 
 interface CidadeTableProps {
     refresh: boolean
+    searchTerm: string
+    filterPaisId: string
+    orderBy: string
 }
 
-function CidadeTable({ refresh }: CidadeTableProps) {
+function CidadeTable({ refresh, searchTerm, filterPaisId, orderBy }: CidadeTableProps) {
     const [cidades, setCidades] = useState<Cidade[]>([])
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<string | null>(null)
@@ -51,11 +54,9 @@ function CidadeTable({ refresh }: CidadeTableProps) {
     const fetchWeather = async (id: number) => {
         setLoadingWeather(true)
         setWeather(null)
-        
         try {
             const response = await api.get(`/cidade/${id}/clima`)
             const data = response.data
-            
             setWeather({
                 temp: data.main.temp,
                 description: data.weather[0].description,
@@ -77,7 +78,6 @@ function CidadeTable({ refresh }: CidadeTableProps) {
     const handleRemove = async (id: number) => {
         const confirm = window.confirm("Tem certeza que deseja excluir esta cidade?")
         if (!confirm) return
-
         try {
             await api.delete(`/cidade/${id}`)
             setCidades(cidades.filter(item => item.cid_id !== id))
@@ -105,7 +105,6 @@ function CidadeTable({ refresh }: CidadeTableProps) {
 
     const handleSave = async () => {
         if (!selectedCidade || !formData) return
-
         try {
             const payload = {
                 nome: formData.cid_nome,
@@ -114,18 +113,14 @@ function CidadeTable({ refresh }: CidadeTableProps) {
                 lon: Number(formData.cid_longitude),
                 paisId: Number(formData.paisId)
             }
-
             await api.put(`/cidade/${selectedCidade.cid_id}`, payload)
-
             const updatedCidade = { ...selectedCidade, ...formData } as Cidade
             setCidades(cidades.map(c => c.cid_id === selectedCidade.cid_id ? updatedCidade : c))
             setSelectedCidade(updatedCidade)
-
             setIsEditing(false)
             setMsg("Dados atualizados com sucesso!")
             setTimeout(() => setMsg(""), 3000)
-            fetchWeather(selectedCidade.cid_id) 
-
+            fetchWeather(selectedCidade.cid_id)
         } catch (error) {
             console.error("Erro ao atualizar:", error)
             setMsg("Erro ao salvar as alterações.")
@@ -134,7 +129,6 @@ function CidadeTable({ refresh }: CidadeTableProps) {
 
     const renderField = (label: string, key: keyof Cidade, type: string = "text", disabled = false) => {
         const value = formData[key]
-
         if (isEditing) {
             return (
                 <div className="bg-white p-3 rounded-lg border border-gray-300 shadow-sm">
@@ -149,19 +143,27 @@ function CidadeTable({ refresh }: CidadeTableProps) {
                 </div>
             )
         }
-
         return (
             <div className="bg-gray-50 p-3 rounded-lg border border-transparent">
                 <p className="text-xs font-semibold text-gray-500 uppercase">{label}</p>
                 <p className="text-lg font-medium text-gray-800">
-                    {type === 'number' && value
-                        ? Number(value).toLocaleString('pt-BR')
-                        : value || 'N/A'
-                    }
+                    {type === 'number' && value ? Number(value).toLocaleString('pt-BR') : value || 'N/A'}
                 </p>
             </div>
         )
     }
+    const filteredCidades = cidades
+        .filter((cidade) => {
+            const matchesSearch = cidade.cid_nome.toLowerCase().includes(searchTerm.toLowerCase())
+            const matchesFilter = filterPaisId ? cidade.paisId === Number(filterPaisId) : true
+            return matchesSearch && matchesFilter
+        })
+        .sort((a, b) => {
+            if (orderBy === "nome") return a.cid_nome.localeCompare(b.cid_nome)
+            if (orderBy === "populacao") return (b.cid_populacao || 0) - (a.cid_populacao || 0)
+            if (orderBy === "id_desc") return b.cid_id - a.cid_id
+            return a.cid_id - b.cid_id
+        })
 
     if (loading) return <p className="text-center mt-4">Carregando tabela...</p>
     if (error) return <p className="text-center mt-4 text-red-500">{error}</p>
@@ -180,12 +182,14 @@ function CidadeTable({ refresh }: CidadeTableProps) {
                         </tr>
                     </thead>
                     <tbody className="text-justify bg-white">
-                        {cidades.length === 0 ? (
+                        {filteredCidades.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="py-8 text-center text-gray-500">Não há Cidades cadastradas</td>
+                                <td colSpan={5} className="py-8 text-center text-gray-500">
+                                    {cidades.length === 0 ? "Não há Cidades cadastradas" : "Nenhuma cidade encontrada"}
+                                </td>
                             </tr>
                         ) : (
-                            cidades.map((cidade) => (
+                            filteredCidades.map((cidade) => (
                                 <tr key={cidade.cid_id} className="hover:bg-gray-100 border-b border-gray-300 transition duration-150">
                                     <td className="py-4 px-8 font-medium text-gray-900">{cidade.cid_nome}</td>
                                     <td className="py-4 px-2 text-gray-600">
@@ -290,7 +294,7 @@ function CidadeTable({ refresh }: CidadeTableProps) {
                                         </button>
                                         <button
                                             onClick={handleSave}
-                                            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition font-medium flex items-center gap-2"
+                                            className="px-4 py-2 bg-emerald-600 cursor-pointer text-white rounded-lg hover:bg-emerald-500 transition font-medium flex items-center gap-2"
                                         >
                                             <CheckIcon className="w-4 h-4" />
                                             Salvar
@@ -299,7 +303,7 @@ function CidadeTable({ refresh }: CidadeTableProps) {
                                 ) : (
                                     <button
                                         onClick={() => setIsEditing(true)}
-                                        className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-e-500 transition font-medium flex items-center gap-2"
+                                        className="px-4 py-2 bg-emerald-600 cursor-pointer text-white rounded-lg hover:bg-e-500 transition font-medium flex items-center gap-2"
                                     >
                                         <PencilSquareIcon className="w-4 h-4" />
                                         Editar

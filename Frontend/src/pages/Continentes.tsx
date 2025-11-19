@@ -10,6 +10,8 @@ function Continentes() {
     const [desc, setDesc] = useState('')
     const [message, setMessage] = useState('')
     const [refreshTable, setRefreshTable] = useState(false)
+    const [search, setSearch] = useState('')
+    const [orderBy, setOrderBy] = useState('id')
 
     const handleSubmit = async(event: React.FormEvent) => {
         event.preventDefault()
@@ -41,12 +43,34 @@ function Continentes() {
                     <div className="text-2xl font-semibold">Continentes Cadastrados</div>
                     <button onClick={() => setOpen(true)} className="bg-emerald-600 rounded-lg px-4 py-2 text-stone-50 flex items-center transition duration-300 ease-in-out hover:cursor-pointer hover:bg-emerald-500">Novo continente + </button>
                 </div>
-                <div className="w-8/10 mb-5">
-                    <input className="w-full px-5 py-2 rounded-full border border-gray-400" type="text" placeholder="Busque por um continente especifico"/>
+                
+                <div className="w-9/10 mb-5 flex gap-4">
+                    <div className="flex-1">
+                        <input 
+                            className="w-full px-5 py-2 rounded-full border border-gray-400 focus:outline-none focus:border-emerald-600" 
+                            type="text" 
+                            placeholder="Busque por um continente específico"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <div className="w-48">
+                        <select 
+                            className="w-full px-4 py-2 rounded-full border border-gray-400 focus:outline-none focus:border-emerald-600 bg-white"
+                            value={orderBy}
+                            onChange={(e) => setOrderBy(e.target.value)}
+                        >
+                            <option value="id">Cadastro (Antigo)</option>
+                            <option value="id_desc">Cadastro (Recente)</option>
+                            <option value="nome">Ordem Alfabética</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div className="w-9/10">
-                    <ContinenteTable refresh={refreshTable}/>
+                    <ContinenteTable refresh={refreshTable} searchTerm={search} orderBy={orderBy} />
                 </div>
+
                 <Modal open={open} onClose={() => setOpen(false)}>
                     <div className="w-140">
                         <div className=" py-4 border-b border-b-gray-300 mb-6">

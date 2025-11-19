@@ -17,11 +17,13 @@ function Paises () {
     const [message, setMessage] = useState('')
     const [continentes, setContinentes] = useState<Continente[]>([])
     const [refreshTable, setRefreshTable] = useState(false)
+    const [search, setSearch] = useState('')
+    const [filterContinente, setFilterContinente] = useState('') 
+    const [orderBy, setOrderBy] = useState('id')
 
     const fetchContinentes = async () => {
         try {
             const response = await api.get<Continente[]>('/continente')
-    
             setContinentes(response.data)
         } catch (error) {
             console.error(error)
@@ -39,7 +41,6 @@ function Paises () {
 
         try {
             const response = await api.post('/pais', paisData)
-
             setMessage(`${response.data.nome} cadastrado com sucesso`)
             setNome("")
             setContinenteId("")
@@ -62,12 +63,53 @@ function Paises () {
                     <div className="text-2xl font-semibold">Paises Cadastrados</div>
                     <button onClick={() => setOpen(true)} className="bg-emerald-600 rounded-lg px-4 py-2 text-stone-50 flex items-center transition duration-300 ease-in-out hover:cursor-pointer hover:bg-emerald-500">Novo país + </button>
                 </div>
-                <div className="w-8/10 mb-5">
-                    <input className="w-full px-5 py-2 rounded-full border border-gray-400" type="text" placeholder="Busque por um pais especifico"/>
+                
+                <div className="w-9/10 mb-5 flex gap-4 flex-wrap">
+                    <div className="flex-1 min-w-[200px]">
+                        <input 
+                            className="w-full px-5 py-2 rounded-full border border-gray-400 focus:outline-none focus:border-emerald-600" 
+                            type="text" 
+                            placeholder="Busque por um país"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <div className="w-48">
+                        <select 
+                            className="w-full px-4 py-2 rounded-full border border-gray-400 focus:outline-none focus:border-emerald-600 bg-white"
+                            value={filterContinente}
+                            onChange={(e) => setFilterContinente(e.target.value)}
+                        >
+                            <option value="">Todos Continentes</option>
+                            {continentes.map((c) => (
+                                <option key={c.con_id} value={c.con_id}>{c.con_nome}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="w-48">
+                        <select 
+                            className="w-full px-4 py-2 rounded-full border border-gray-400 focus:outline-none focus:border-emerald-600 bg-white"
+                            value={orderBy}
+                            onChange={(e) => setOrderBy(e.target.value)}
+                        >
+                            <option value="id">Cadastro (Antigo)</option>
+                            <option value="id_desc">Cadastro (Recente)</option>
+                            <option value="nome">Alfabética</option>
+                            <option value="populacao">População (Maior)</option>
+                            <option value="area">Área (Maior)</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div className="w-9/10">
-                    <PaisTable refresh={refreshTable} />
+                    <PaisTable 
+                        refresh={refreshTable} 
+                        searchTerm={search}
+                        filterContinenteId={filterContinente}
+                        orderBy={orderBy}
+                    />
                 </div>
+
                 <Modal open={open} onClose={() => setOpen(false)}>
                     <div className="w-140">
                         <div className=" py-4 border-b border-b-gray-300 mb-6">
@@ -88,7 +130,7 @@ function Paises () {
                                     />
                                 </div>
                                 <div className="flex flex-col">
-                                    <label className="mb-1" htmlFor="contineteId">Contienete que pertence</label>
+                                    <label className="mb-1" htmlFor="continenteId">Continente que pertence</label>
                                     <select 
                                         value={continenteId} 
                                         onChange={(e) => setContinenteId(e.target.value)}
