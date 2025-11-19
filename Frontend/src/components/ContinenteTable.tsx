@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react"
 import { api } from "../services/api"
-import {  PencilSquareIcon, TrashIcon } from "@heroicons/react/16/solid"
+import { PencilSquareIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/16/solid"
 import Modal from "./Modal"
 
 interface Continente {
@@ -23,6 +23,8 @@ function ContinenteTable({ refresh, searchTerm, orderBy }: ContinenteTableProps)
     const [id, setId] = useState<number | null>(null)
     const [nome, setNome] = useState<string>("")
     const [desc, setDesc] = useState<string>("")
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 5
 
     const fetchContinentes = async () => {
         try {
@@ -35,6 +37,10 @@ function ContinenteTable({ refresh, searchTerm, orderBy }: ContinenteTableProps)
             setLoading(false)
         }
     }
+
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [searchTerm, orderBy])
 
     const handleRemove = async (id: number) => {
         const confirm = window.confirm("Tem certeza que deseja excluir este continente?")
@@ -83,17 +89,21 @@ function ContinenteTable({ refresh, searchTerm, orderBy }: ContinenteTableProps)
         )
         .sort((a, b) => {
             if (orderBy === "nome") return a.con_nome.localeCompare(b.con_nome)
-            if (orderBy === "id_desc") return b.con_id - a.con_id 
-            return a.con_id - b.con_id 
+            if (orderBy === "id_desc") return b.con_id - a.con_id
+            return a.con_id - b.con_id
         })
 
-    if (loading) return <p>Carregando tabela...</p>
-    if (error) return <p>{error}</p>
+    const totalPages = Math.ceil(filteredContinentes.length / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const currentItems = filteredContinentes.slice(startIndex, startIndex + itemsPerPage)
+
+    if (loading) return <p className="text-center mt-4">Carregando tabela...</p>
+    if (error) return <p className="text-center mt-4 text-red-500">{error}</p>
 
     return (
         <>
             <div className="rounded-lg border border-gray-300 shadow-sm overflow-hidden overflow-x-auto">
-                <table className="w-full divide-y divide-gray-200 min-w-[800px]">
+                <table className="w-full min-w-[600px] divide-y divide-gray-200">
                     <thead className="bg-gray-200 text-justify">
                         <tr>
                             <th className="py-3 px-8 font-medium">Nome</th>
@@ -101,24 +111,24 @@ function ContinenteTable({ refresh, searchTerm, orderBy }: ContinenteTableProps)
                             <th className="py-3 px-2 font-medium">Acoes</th>
                         </tr>
                     </thead>
-                    <tbody className="text-justify">
-                        {filteredContinentes.length === 0 ? (
+                    <tbody className="text-justify bg-white">
+                        {currentItems.length === 0 ? (
                             <tr>
                                 <td colSpan={3} className="py-8 text-center text-gray-500">
                                     {continentes.length === 0 ? "Não há Continentes cadastrados" : "Nenhum resultado encontrado"}
                                 </td>
                             </tr>
                         ) : (
-                            filteredContinentes.map((continente) => (
+                            currentItems.map((continente) => (
                                 <tr key={continente.con_id} className="hover:bg-gray-100 border-b border-gray-300">
                                     <td className="py-8 px-8">{continente.con_nome}</td>
                                     <td className="py-8 px-2">{continente.con_descricao}</td>
                                     <td className="py-8 px-2">
                                         <div className="w-full flex items-center">
-                                            <button onClick={() => handleRemove(continente.con_id)} className="rounded-full p-1 mr-2 cursor-pointer transition duration-200 hover:bg-red-200">
+                                            <button onClick={() => handleRemove(continente.con_id)} className="rounded-full p-1 mr-2 cursor-pointer transition duration-200 hover:bg-red-200" title="Excluir">
                                                 <TrashIcon className="w-5 h-5 fill-red-600" />
                                             </button>
-                                            <button onClick={() => handleEdit(continente)} className="rounded-full p-1 cursor-pointer transition duration-200 hover:bg-sky-200">
+                                            <button onClick={() => handleEdit(continente)} className="rounded-full p-1 cursor-pointer transition duration-200 hover:bg-sky-200" title="Editar">
                                                 <PencilSquareIcon className="w-5 h-5 fill-sky-600" />
                                             </button>
                                         </div>
@@ -129,6 +139,30 @@ function ContinenteTable({ refresh, searchTerm, orderBy }: ContinenteTableProps)
                     </tbody>
                 </table>
             </div>
+
+            {filteredContinentes.length > 0 && (
+                <div className="flex justify-between items-center mt-4 px-2">
+                    <span className="text-sm text-gray-600">
+                        Página {currentPage} de {totalPages}
+                    </span>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="p-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                        >
+                            <ChevronLeftIcon className="w-5 h-5 text-gray-600" />
+                        </button>
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            className="p-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                        >
+                            <ChevronRightIcon className="w-5 h-5 text-gray-600" />
+                        </button>
+                    </div>
+                </div>
+            )}
             
             <Modal open={open} onClose={handleClose}>
                 <div className="w-140">

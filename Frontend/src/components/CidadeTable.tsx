@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { api } from "../services/api"
-import { EyeIcon, TrashIcon, PencilSquareIcon, CheckIcon, CloudIcon } from "@heroicons/react/16/solid"
+import { EyeIcon, TrashIcon, PencilSquareIcon, CheckIcon, CloudIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/16/solid"
 import Modal from "./Modal"
 
 interface Cidade {
@@ -38,6 +38,8 @@ function CidadeTable({ refresh, searchTerm, filterPaisId, orderBy }: CidadeTable
     const [msg, setMsg] = useState<string>("")
     const [weather, setWeather] = useState<WeatherData | null>(null)
     const [loadingWeather, setLoadingWeather] = useState(false)
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 5
 
     const fetchCidades = async () => {
         try {
@@ -50,6 +52,10 @@ function CidadeTable({ refresh, searchTerm, filterPaisId, orderBy }: CidadeTable
             setLoading(false)
         }
     }
+
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [searchTerm, filterPaisId, orderBy])
 
     const fetchWeather = async (id: number) => {
         setLoadingWeather(true)
@@ -152,6 +158,7 @@ function CidadeTable({ refresh, searchTerm, filterPaisId, orderBy }: CidadeTable
             </div>
         )
     }
+
     const filteredCidades = cidades
         .filter((cidade) => {
             const matchesSearch = cidade.cid_nome.toLowerCase().includes(searchTerm.toLowerCase())
@@ -165,13 +172,17 @@ function CidadeTable({ refresh, searchTerm, filterPaisId, orderBy }: CidadeTable
             return a.cid_id - b.cid_id
         })
 
+    const totalPages = Math.ceil(filteredCidades.length / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const currentItems = filteredCidades.slice(startIndex, startIndex + itemsPerPage)
+
     if (loading) return <p className="text-center mt-4">Carregando tabela...</p>
     if (error) return <p className="text-center mt-4 text-red-500">{error}</p>
 
     return (
         <>
             <div className="rounded-lg border border-gray-300 shadow-sm overflow-hidden overflow-x-auto">
-                <table className="w-full divide-y divide-gray-200 min-w-[800px]">
+                <table className="w-full min-w-[600px] divide-y divide-gray-200">
                     <thead className="bg-gray-200 text-justify">
                         <tr>
                             <th className="py-3 px-8 font-medium">Nome</th>
@@ -182,14 +193,14 @@ function CidadeTable({ refresh, searchTerm, filterPaisId, orderBy }: CidadeTable
                         </tr>
                     </thead>
                     <tbody className="text-justify bg-white">
-                        {filteredCidades.length === 0 ? (
+                        {currentItems.length === 0 ? (
                             <tr>
                                 <td colSpan={5} className="py-8 text-center text-gray-500">
                                     {cidades.length === 0 ? "Não há Cidades cadastradas" : "Nenhuma cidade encontrada"}
                                 </td>
                             </tr>
                         ) : (
-                            filteredCidades.map((cidade) => (
+                            currentItems.map((cidade) => (
                                 <tr key={cidade.cid_id} className="hover:bg-gray-100 border-b border-gray-300 transition duration-150">
                                     <td className="py-4 px-8 font-medium text-gray-900">{cidade.cid_nome}</td>
                                     <td className="py-4 px-2 text-gray-600">
@@ -213,6 +224,30 @@ function CidadeTable({ refresh, searchTerm, filterPaisId, orderBy }: CidadeTable
                     </tbody>
                 </table>
             </div>
+
+            {filteredCidades.length > 0 && (
+                <div className="flex justify-between items-center mt-4 px-2">
+                    <span className="text-sm text-gray-600">
+                        Página {currentPage} de {totalPages}
+                    </span>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="p-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                        >
+                            <ChevronLeftIcon className="w-5 h-5 text-gray-600" />
+                        </button>
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            className="p-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                        >
+                            <ChevronRightIcon className="w-5 h-5 text-gray-600" />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <Modal open={viewOpen} onClose={handleCloseView}>
                 {selectedCidade && (
@@ -294,7 +329,7 @@ function CidadeTable({ refresh, searchTerm, filterPaisId, orderBy }: CidadeTable
                                         </button>
                                         <button
                                             onClick={handleSave}
-                                            className="px-4 py-2 bg-emerald-600 cursor-pointer text-white rounded-lg hover:bg-emerald-500 transition font-medium flex items-center gap-2"
+                                            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition font-medium flex items-center gap-2"
                                         >
                                             <CheckIcon className="w-4 h-4" />
                                             Salvar
@@ -303,7 +338,7 @@ function CidadeTable({ refresh, searchTerm, filterPaisId, orderBy }: CidadeTable
                                 ) : (
                                     <button
                                         onClick={() => setIsEditing(true)}
-                                        className="px-4 py-2 bg-emerald-600 cursor-pointer text-white rounded-lg hover:bg-e-500 transition font-medium flex items-center gap-2"
+                                        className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-e-500 transition font-medium flex items-center gap-2"
                                     >
                                         <PencilSquareIcon className="w-4 h-4" />
                                         Editar

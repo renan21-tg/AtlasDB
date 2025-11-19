@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { api } from "../services/api"
-import { EyeIcon, TrashIcon, PencilSquareIcon, CheckIcon } from "@heroicons/react/16/solid"
+import { EyeIcon, MapIcon, TrashIcon, PencilSquareIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/16/solid"
 import Modal from "./Modal"
 
 interface Pais {
@@ -31,6 +31,8 @@ function PaisTable({ refresh, searchTerm, filterContinenteId, orderBy }: PaisTab
     const [isEditing, setIsEditing] = useState<boolean>(false)
     const [formData, setFormData] = useState<Partial<Pais>>({})
     const [msg, setMsg] = useState<string>("")
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 5
 
     const fetchPaises = async () => {
         try {
@@ -43,6 +45,10 @@ function PaisTable({ refresh, searchTerm, filterContinenteId, orderBy }: PaisTab
             setLoading(false)
         }
     }
+
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [searchTerm, filterContinenteId, orderBy])
 
     useEffect(() => {
         fetchPaises()
@@ -149,6 +155,10 @@ function PaisTable({ refresh, searchTerm, filterContinenteId, orderBy }: PaisTab
             if (orderBy === "id_desc") return b.pai_id - a.pai_id
             return a.pai_id - b.pai_id
         })
+    
+    const totalPages = Math.ceil(filteredPaises.length / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const currentItems = filteredPaises.slice(startIndex, startIndex + itemsPerPage)
 
     if (loading) return <p className="text-center mt-4">Carregando tabela...</p>
     if (error) return <p className="text-center mt-4 text-red-500">{error}</p>
@@ -156,7 +166,7 @@ function PaisTable({ refresh, searchTerm, filterContinenteId, orderBy }: PaisTab
     return (
         <>
             <div className="rounded-lg border border-gray-300 shadow-sm overflow-hidden overflow-x-auto">
-                <table className="w-full divide-y divide-gray-200 min-w-[800px]">
+                <table className="w-full min-w-[800px] divide-y divide-gray-200">
                     <thead className="bg-gray-200 text-justify">
                         <tr>
                             <th className="py-3 px-8 font-medium">Nome</th>
@@ -167,14 +177,14 @@ function PaisTable({ refresh, searchTerm, filterContinenteId, orderBy }: PaisTab
                         </tr>
                     </thead>
                     <tbody className="text-justify bg-white">
-                        {filteredPaises.length === 0 ? (
+                        {currentItems.length === 0 ? (
                             <tr>
                                 <td colSpan={5} className="py-8 text-center text-gray-500">
-                                    {paises.length === 0 ? "Não há Países cadastrados" : "Nenhum país encontrado com estes filtros"}
+                                    {paises.length === 0 ? "Não há Países cadastrados" : "Nenhum país encontrado"}
                                 </td>
                             </tr>
                         ) : (
-                            filteredPaises.map((pais) => (
+                            currentItems.map((pais) => (
                                 <tr key={pais.pai_id} className="hover:bg-gray-100 border-b border-gray-300 transition duration-150">
                                     <td className="py-4 px-8 font-medium text-gray-900">{pais.pai_nome}</td>
                                     <td className="py-4 px-2 text-gray-600 truncate max-w-xs" title={pais.pai_descricao}>
@@ -186,6 +196,9 @@ function PaisTable({ refresh, searchTerm, filterContinenteId, orderBy }: PaisTab
                                     </td>
                                     <td className="py-4 px-2">
                                         <div className="flex items-center w-full">
+                                            <button className="rounded-full p-1 mr-2 cursor-pointer transition duration-200 hover:bg-sky-200" title="Mapa (Em breve)">
+                                                <MapIcon className="w-5 h-5 fill-sky-600" />
+                                            </button>
                                             <button
                                                 onClick={() => handleRemove(pais.pai_id)}
                                                 className="rounded-full p-1 mr-2 cursor-pointer transition duration-200 hover:bg-red-200"
@@ -209,7 +222,31 @@ function PaisTable({ refresh, searchTerm, filterContinenteId, orderBy }: PaisTab
                 </table>
             </div>
 
-             <Modal open={viewOpen} onClose={handleCloseView}>
+            {filteredPaises.length > 0 && (
+                <div className="flex justify-between items-center mt-4 px-2">
+                    <span className="text-sm text-gray-600">
+                        Página {currentPage} de {totalPages}
+                    </span>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="p-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                        >
+                            <ChevronLeftIcon className="w-5 h-5 text-gray-600" />
+                        </button>
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                            className="p-2 border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                        >
+                            <ChevronRightIcon className="w-5 h-5 text-gray-600" />
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            <Modal open={viewOpen} onClose={handleCloseView}>
                 {selectedPais && (
                     <div className="w-[600px]">
                         <div className="flex justify-between items-start border-b border-gray-200 pb-4 mb-6 pr-8">
@@ -270,13 +307,13 @@ function PaisTable({ refresh, searchTerm, filterContinenteId, orderBy }: PaisTab
                                     <>
                                         <button 
                                             onClick={() => {setIsEditing(false); setFormData(selectedPais)}}
-                                            className="px-4 py-2 text-gray-600 hover:bg-gray-100 cursor-pointer rounded-lg transition font-medium border border-gray-300"
+                                            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition font-medium border border-gray-300"
                                         >
                                             Cancelar
                                         </button>
                                         <button 
                                             onClick={handleSave}
-                                            className="px-4 py-2 bg-emerald-600 text-white cursor-pointer rounded-lg hover:bg-emerald-500 transition font-medium flex items-center gap-2"
+                                            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition font-medium flex items-center gap-2"
                                         >
                                             <CheckIcon className="w-4 h-4" />
                                             Salvar
@@ -285,7 +322,7 @@ function PaisTable({ refresh, searchTerm, filterContinenteId, orderBy }: PaisTab
                                 ) : (
                                     <button 
                                         onClick={() => setIsEditing(true)}
-                                        className="px-4 py-2 bg-emerald-600 cursor-pointer text-white rounded-lg hover:bg-emerald-500 transition font-medium flex items-center gap-2"
+                                        className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-500 transition font-medium flex items-center gap-2"
                                     >
                                         <PencilSquareIcon className="w-4 h-4" />
                                         Editar
