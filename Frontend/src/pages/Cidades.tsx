@@ -17,10 +17,13 @@ function Cidades() {
     const [message, setMessage] = useState('')
     const [paises, setPaises] = useState<Pais[]>([])
     const [refreshTable, setRefreshTable] = useState(false)
+
+    // States para controle da tabela
     const [search, setSearch] = useState('')
     const [filterPais, setFilterPais] = useState('') 
     const [orderBy, setOrderBy] = useState('id')
 
+    // Busca paises para o Select do formulário e para o filtro
     const fetchPaises = async () => {
         try {
             const response = await api.get<Pais[]>('/pais')
@@ -46,6 +49,7 @@ function Cidades() {
 
         try {
             const response = await api.post('/cidade', cidadeData)
+
             setMessage(`Cidade ${response.data.cid_nome} cadastrada com sucesso!`)
             setNome("")
             setPopulacao("")
@@ -65,24 +69,27 @@ function Cidades() {
     return (
         <>
             <div className="w-full flex items-center flex-col mt-6">
-                <div className="w-9/10 flex justify-between mb-4">
+                {/* Cabeçalho Responsivo */}
+                <div className="w-11/12 md:w-9/10 flex flex-col md:flex-row justify-between mb-4 gap-4 items-center md:items-start">
                     <div className="text-2xl font-semibold">Cidades Cadastradas</div>
-                    <button onClick={() => setOpen(true)} className="bg-emerald-600 rounded-lg px-4 py-2 text-stone-50 flex items-center transition duration-300 ease-in-out hover:cursor-pointer hover:bg-emerald-500">Nova cidade + </button>
+                    <button onClick={() => setOpen(true)} className="bg-emerald-600 rounded-lg px-4 py-2 text-stone-50 flex items-center transition duration-300 ease-in-out hover:cursor-pointer hover:bg-emerald-500 w-full md:w-auto justify-center">
+                        Nova cidade + 
+                    </button>
                 </div>
                 
-                {/* [NOVO] Área de Filtros */}
-                <div className="w-9/10 mb-5 flex gap-4 flex-wrap">
-                    <div className="flex-1 min-w-[200px]">
+                {/* Área de Filtros Responsiva */}
+                <div className="w-11/12 md:w-9/10 mb-5 flex flex-col md:flex-row gap-4 flex-wrap">
+                     <div className="flex-1 min-w-[200px]">
                         <input 
-                            className="w-full px-5 py-2 rounded-full border border-gray-400 focus:outline-none focus:border-emerald-600" 
-                            type="text" 
-                            placeholder="Busque por uma cidade"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                             className="w-full px-5 py-2 rounded-full border border-gray-400 focus:outline-none focus:border-emerald-600" 
+                             type="text" 
+                             placeholder="Busque por uma cidade"
+                             value={search}
+                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
-                    <div className="w-48">
-                        <select 
+                    <div className="w-full md:w-48">
+                         <select 
                             className="w-full px-4 py-2 rounded-full border border-gray-400 focus:outline-none focus:border-emerald-600 bg-white"
                             value={filterPais}
                             onChange={(e) => setFilterPais(e.target.value)}
@@ -93,7 +100,7 @@ function Cidades() {
                             ))}
                         </select>
                     </div>
-                    <div className="w-48">
+                    <div className="w-full md:w-48">
                         <select 
                             className="w-full px-4 py-2 rounded-full border border-gray-400 focus:outline-none focus:border-emerald-600 bg-white"
                             value={orderBy}
@@ -107,7 +114,8 @@ function Cidades() {
                     </div>
                 </div>
 
-                <div className="w-9/10">
+                {/* Tabela */}
+                <div className="w-11/12 md:w-9/10">
                     <CidadeTable 
                         refresh={refreshTable}
                         searchTerm={search}
@@ -116,8 +124,9 @@ function Cidades() {
                     />
                 </div>
 
+                {/* Modal de Cadastro */}
                 <Modal open={open} onClose={() => setOpen(false)}>
-                    <div className="w-140">
+                    <div className="w-full md:w-140">
                         <div className="py-4 border-b border-b-gray-300 mb-6">
                             <h1 className="text-lg font-semibold">Cadastrar Nova Cidade</h1>
                         </div>
@@ -126,7 +135,7 @@ function Cidades() {
                                 <div className="flex flex-col mb-4">
                                     <label className="mb-1" htmlFor="nome">Nome</label>
                                     <input 
-                                        className="border border-gray-400 h-10 pl-2 rounded-lg focus:outline-hidden focus:border-emerald-600" 
+                                        className="border border-gray-400 h-10 pl-2 rounded-lg focus:outline-hidden focus:border-emerald-600 w-full" 
                                         value={nome} 
                                         type="text" 
                                         id="nome" 
@@ -139,7 +148,7 @@ function Cidades() {
                                 <div className="flex flex-col mb-4">
                                     <label className="mb-1" htmlFor="populacao">População</label>
                                     <input 
-                                        className="border border-gray-400 h-10 pl-2 rounded-lg focus:outline-hidden focus:border-emerald-600" 
+                                        className="border border-gray-400 h-10 pl-2 rounded-lg focus:outline-hidden focus:border-emerald-600 w-full" 
                                         value={populacao} 
                                         type="number" 
                                         id="populacao" 
@@ -154,7 +163,7 @@ function Cidades() {
                                     <select 
                                         value={paisId} 
                                         onChange={(e) => setPaisId(e.target.value)}
-                                        className="border border-gray-400 h-10 pl-2 rounded-lg focus:outline-hidden focus:border-emerald-600"  
+                                        className="border border-gray-400 h-10 pl-2 rounded-lg focus:outline-hidden focus:border-emerald-600 w-full"  
                                         name="pais" 
                                         id="paisId"
                                         required

@@ -155,8 +155,8 @@ function PaisTable({ refresh, searchTerm, filterContinenteId, orderBy }: PaisTab
 
     return (
         <>
-            <div className="rounded-lg border border-gray-300 shadow-sm overflow-hidden">
-                <table className="w-full divide-y divide-gray-200">
+            <div className="rounded-lg border border-gray-300 shadow-sm overflow-hidden overflow-x-auto">
+                <table className="w-full divide-y divide-gray-200 min-w-[800px]">
                     <thead className="bg-gray-200 text-justify">
                         <tr>
                             <th className="py-3 px-8 font-medium">Nome</th>

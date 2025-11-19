@@ -10,6 +10,8 @@ function Continentes() {
     const [desc, setDesc] = useState('')
     const [message, setMessage] = useState('')
     const [refreshTable, setRefreshTable] = useState(false)
+    
+    // States para controle de busca e ordenação
     const [search, setSearch] = useState('')
     const [orderBy, setOrderBy] = useState('id')
 
@@ -39,12 +41,16 @@ function Continentes() {
     return (
         <>
             <div className="w-full flex items-center flex-col mt-6">
-                <div className="w-9/10 flex justify-between mb-4">
+                {/* Cabeçalho Responsivo */}
+                <div className="w-11/12 md:w-9/10 flex flex-col md:flex-row justify-between mb-4 gap-4 items-center md:items-start">
                     <div className="text-2xl font-semibold">Continentes Cadastrados</div>
-                    <button onClick={() => setOpen(true)} className="bg-emerald-600 rounded-lg px-4 py-2 text-stone-50 flex items-center transition duration-300 ease-in-out hover:cursor-pointer hover:bg-emerald-500">Novo continente + </button>
+                    <button onClick={() => setOpen(true)} className="bg-emerald-600 rounded-lg px-4 py-2 text-stone-50 flex items-center transition duration-300 ease-in-out hover:cursor-pointer hover:bg-emerald-500 w-full md:w-auto justify-center">
+                        Novo continente + 
+                    </button>
                 </div>
                 
-                <div className="w-9/10 mb-5 flex gap-4">
+                {/* Área de Filtros Responsiva */}
+                <div className="w-11/12 md:w-9/10 mb-5 flex flex-col md:flex-row gap-4">
                     <div className="flex-1">
                         <input 
                             className="w-full px-5 py-2 rounded-full border border-gray-400 focus:outline-none focus:border-emerald-600" 
@@ -54,7 +60,7 @@ function Continentes() {
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
-                    <div className="w-48">
+                    <div className="w-full md:w-48">
                         <select 
                             className="w-full px-4 py-2 rounded-full border border-gray-400 focus:outline-none focus:border-emerald-600 bg-white"
                             value={orderBy}
@@ -67,12 +73,14 @@ function Continentes() {
                     </div>
                 </div>
 
-                <div className="w-9/10">
+                {/* Tabela */}
+                <div className="w-11/12 md:w-9/10">
                     <ContinenteTable refresh={refreshTable} searchTerm={search} orderBy={orderBy} />
                 </div>
 
+                {/* Modal de Cadastro */}
                 <Modal open={open} onClose={() => setOpen(false)}>
-                    <div className="w-140">
+                     <div className="w-full md:w-140">
                         <div className=" py-4 border-b border-b-gray-300 mb-6">
                             <h1 className="text-lg font-semibold">Cadastrar Novo Continente</h1>
                         </div>
@@ -81,7 +89,7 @@ function Continentes() {
                                 <div className="flex flex-col">
                                     <label className="mb-1" htmlFor="nome">Nome</label>
                                     <input 
-                                        className="border border-gray-400 h-10 pl-2 mb-4 rounded-lg focus:outline-hidden focus:border-emerald-600" 
+                                        className="border border-gray-400 h-10 pl-2 mb-4 rounded-lg focus:outline-hidden focus:border-emerald-600 w-full" 
                                         value={nome} 
                                         type="text" 
                                         id="nome" 
@@ -93,7 +101,7 @@ function Continentes() {
                                 <div className="flex flex-col">
                                     <label className="mb-1" htmlFor="desc">Descricao</label>
                                     <textarea 
-                                        className="border border-gray-400 h-20 pl-2 pt-2 rounded-lg  focus:outline-hidden focus:border-emerald-600" 
+                                        className="border border-gray-400 h-20 pl-2 pt-2 rounded-lg  focus:outline-hidden focus:border-emerald-600 w-full resize-none" 
                                         value={desc} 
                                         name="desc" 
                                         id="desc" 
