@@ -74,8 +74,6 @@ async function findUnique(id: number) {
         }
     })
 
-    // Puxar informacoes de tempo
-
     return cidade
 }
 
@@ -117,4 +115,28 @@ async function deleteCidade(id: number) {
     return cidadeDeletada   
 }
 
-export { create, findAll, findUnique, listByPais, update, deleteCidade }
+async function getWeather(id: number) {
+    const cidade = await prisma.cidades.findUnique({
+        where: { cid_id: id }
+    })
+
+    if (!cidade) {
+        throw new Error("Cidade não encontrada")
+    }
+
+    const urlApi = `https://api.openweathermap.org/data/2.5/weather?lat=${cidade.cid_latitude}&lon=${cidade.cid_longitude}&units=metric&lang=pt_br&appid=${process.env.API_KEY}`
+
+    try {
+        const response = await fetch(urlApi)
+        
+        if(!response.ok) {
+            throw new Error(`Erro na API OpenWeather: ${response.status}`)
+        }
+
+        return await response.json()
+    } catch (error) {
+        throw new Error("Não foi possível buscar o clima no momento.")
+    }
+}
+
+export { create, findAll, findUnique, listByPais, update, deleteCidade, getWeather }

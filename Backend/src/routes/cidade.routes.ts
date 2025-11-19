@@ -8,5 +8,6 @@ router.get('/cidade', cidadeController.getAllCidades)
 router.get('/cidade/:id', cidadeController.getCidadeById)
 router.put('/cidade/:id', cidadeController.updateCidade)
 router.delete('/cidade/:id', cidadeController.deleteCidade)
+router.get('/cidade/:id/clima', cidadeController.getCidadeWeather)
 
 export { router }

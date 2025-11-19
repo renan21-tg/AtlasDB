@@ -87,4 +87,15 @@ async function deleteCidade(req: Request, res: Response) {
     }
 }
 
-export { addCidade, getAllCidades, getCidadeById, getCidadesByContinente, updateCidade, deleteCidade }
+async function getCidadeWeather(req: Request, res: Response) {
+    try {
+        const { id } = req.params
+        const clima = await cidadeService.getWeather(Number(id))
+        return res.status(200).json(clima)
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Erro desconhecido"
+        return res.status(500).json({ message: "Erro ao buscar clima", error: errorMessage })
+    }
+}
+
+export { addCidade, getAllCidades, getCidadeById, getCidadesByContinente, updateCidade, deleteCidade, getCidadeWeather }
