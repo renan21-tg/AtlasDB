@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { api } from "../services/api"
-import { EyeIcon, MapIcon, TrashIcon, PencilSquareIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/16/solid"
+import { EyeIcon, TrashIcon, PencilSquareIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/16/solid"
 import Modal from "./Modal"
 
 interface Pais {
@@ -196,9 +196,6 @@ function PaisTable({ refresh, searchTerm, filterContinenteId, orderBy }: PaisTab
                                     </td>
                                     <td className="py-4 px-2">
                                         <div className="flex items-center w-full">
-                                            <button className="rounded-full p-1 mr-2 cursor-pointer transition duration-200 hover:bg-sky-200" title="Mapa (Em breve)">
-                                                <MapIcon className="w-5 h-5 fill-sky-600" />
-                                            </button>
                                             <button
                                                 onClick={() => handleRemove(pais.pai_id)}
                                                 className="rounded-full p-1 mr-2 cursor-pointer transition duration-200 hover:bg-red-200"
