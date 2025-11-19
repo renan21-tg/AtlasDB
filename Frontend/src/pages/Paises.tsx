@@ -44,6 +44,7 @@ function Paises () {
             setNome("")
             setContinenteId("")
             setOpen(false)
+            setRefreshTable((prev) => !prev)
         } catch (error) {
             if (axios.isAxiosError(error) && error.response) {
                 setMessage(`Erro: ${error.response.data.message || "Tente Novamente"}`)
